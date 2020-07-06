@@ -1,54 +1,14 @@
 let instructions = [
-    db.rooms.drop(),
-    db.rooms.insert({
-        "_id":"GD001",
-        "type":"single",
-        "status":"available"
+    db.vendors.drop(),
+    db.vendors.insert({
+        "_id":"greydoor",
+        "name":"Grey Door Hotel",
+        "url":"grey-door:9003"
     }),
-    db.rooms.insert({
-        "_id":"GD002",
-        "type":"single",
-        "status":"available"
-    }),
-    db.rooms.insert({
-        "_id":"GD003",
-        "type":"single",
-        "status":"available"
-    }),
-    db.rooms.insert({
-        "_id":"GD004",
-        "type":"single",
-        "status":"available"
-    }),
-    db.rooms.insert({
-        "_id":"GD005",
-        "type":"single",
-        "status":"available"
-    }),
-    db.rooms.insert({
-        "_id":"GD006",
-        "type":"double",
-        "status":"available"
-    }),
-    db.rooms.insert({
-        "_id":"GD007",
-        "type":"double",
-        "status":"available"
-    }),
-    db.rooms.insert({
-        "_id":"GD008",
-        "type":"double",
-        "status":"available"
-    }),
-    db.rooms.insert({
-        "_id":"GD009",
-        "type":"double",
-        "status":"available"
-    }),
-    db.rooms.insert({
-        "_id":"GD010",
-        "type":"double",
-        "status":"available"
+    db.vendors.insert({
+        "_id":"bluedoor",
+        "name":"Blue Door Hotel",
+        "url":"blue-door:9002"
     })
 ];
 

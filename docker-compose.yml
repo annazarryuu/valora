@@ -2,20 +2,20 @@ version: '3.8'
 
 services:
 
-    # valora:
-    #     build: ./valora-service
-    #     ports: 
-    #         - 9001:9001
-    #     environment:
-    #         MONGODB_AUTH_DATABASE: admin
-    #         MONGODB_HOST: mongodb-valora
-    #         MONGODB_PORT: 27017
-    #         MONGODB_DATABASE: valora
-    #         MONGODB_USERNAME: root
-    #         MONGODB_PASSWORD: root
-    #     depends_on:
-    #         - mongodb-valora
-    #     restart: always
+    valora:
+        build: ./valora-service
+        ports: 
+            - 9001:9001
+        environment:
+            MONGODB_AUTH_DATABASE: admin
+            MONGODB_HOST: mongodb-valora
+            MONGODB_PORT: 27017
+            MONGODB_DATABASE: valora
+            MONGODB_USERNAME: root
+            MONGODB_PASSWORD: root
+        depends_on:
+            - mongodb-valora
+        restart: always
 
     blue-door:
         build: ./blue-door-service
@@ -47,13 +47,13 @@ services:
             - mongodb-grey-door
         restart: always
 
-    # mongodb-valora:
-    #     build: ./mongodb-valora
-    #     environment:
-    #         MONGO_INITDB_DATABASE: valora
-    #         MONGO_INITDB_ROOT_USERNAME: root
-    #         MONGO_INITDB_ROOT_PASSWORD: root
-    #     restart: always
+    mongodb-valora:
+        build: ./mongodb-valora
+        environment:
+            MONGO_INITDB_DATABASE: valora
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: root
+        restart: always
 
     mongodb-blue-door:
         build: ./mongodb-blue-door
@@ -84,28 +84,28 @@ services:
     #         - mongodb-valora
     #     restart: always
 
-    mongo-express-blue-door:
-        image: mongo-express
-        ports:
-            - 8082:8082
-        environment:
-            VCAP_APP_PORT: 8082
-            ME_CONFIG_MONGODB_SERVER: mongodb-blue-door
-            ME_CONFIG_MONGODB_ADMINUSERNAME: root
-            ME_CONFIG_MONGODB_ADMINPASSWORD: root
-        depends_on:
-            - mongodb-blue-door
-        restart: always
+    # mongo-express-blue-door:
+    #     image: mongo-express
+    #     ports:
+    #         - 8082:8082
+    #     environment:
+    #         VCAP_APP_PORT: 8082
+    #         ME_CONFIG_MONGODB_SERVER: mongodb-blue-door
+    #         ME_CONFIG_MONGODB_ADMINUSERNAME: root
+    #         ME_CONFIG_MONGODB_ADMINPASSWORD: root
+    #     depends_on:
+    #         - mongodb-blue-door
+    #     restart: always
 
-    mongo-express-grey-door:
-        image: mongo-express
-        ports:
-            - 8083:8083
-        environment:
-            VCAP_APP_PORT: 8083
-            ME_CONFIG_MONGODB_SERVER: mongodb-grey-door
-            ME_CONFIG_MONGODB_ADMINUSERNAME: root
-            ME_CONFIG_MONGODB_ADMINPASSWORD: root
-        depends_on:
-            - mongodb-grey-door
-        restart: always
+    # mongo-express-grey-door:
+    #     image: mongo-express
+    #     ports:
+    #         - 8083:8083
+    #     environment:
+    #         VCAP_APP_PORT: 8083
+    #         ME_CONFIG_MONGODB_SERVER: mongodb-grey-door
+    #         ME_CONFIG_MONGODB_ADMINUSERNAME: root
+    #         ME_CONFIG_MONGODB_ADMINPASSWORD: root
+    #     depends_on:
+    #         - mongodb-grey-door
+    #     restart: always
