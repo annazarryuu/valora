@@ -66,6 +66,13 @@ public class ValoraServiceController {
                 b. kalo booked, langsung book dan set response jadi "success"
             3. save transaksi nya dan return transaksinya.
         */
+        @Autowired
+        private TransactionRepository transactionRepository;
+
+        this.transactionRepository = new Transaction; 
+        if (transactionRepository.idempotencyKey == 0) { 
+            return Transaction;
+        } 
     }
 
 }
