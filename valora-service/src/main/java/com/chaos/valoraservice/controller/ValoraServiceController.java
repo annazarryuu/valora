@@ -4,6 +4,7 @@ import com.chaos.valoraservice.model.Room;
 import com.chaos.valoraservice.model.RoomVendor;
 import com.chaos.valoraservice.model.Transaction;
 import com.chaos.valoraservice.model.Vendor;
+import com.chaos.valoraservice.repository.TransactionRepository;
 import com.chaos.valoraservice.repository.VendorRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class ValoraServiceController {
 
     @Autowired
     private VendorRepository vendorRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @GetMapping("/rooms/list")
     public @ResponseBody Flux<RoomVendor> findAllRooms() {
@@ -44,28 +48,100 @@ public class ValoraServiceController {
 
     @PostMapping("/rooms/book")
     public @ResponseBody Mono<Transaction> bookRoom(@RequestBody Transaction transaction) {
-        /*
-            1. cek transaksi sebelumnya, ada ngga yang idempotencyKey nya sama.
-                a. kalo ada, return transaksi nya langsung.
-                b. kalo ngga ada, lanjut ke langkah 2.
-            2. cek kamarnya booked atau available.
-                a. kalo booked, set response jadi "failed"
-                b. kalo available, langsung book dan set response jadi "success"
-            3. save transaksi nya dan return transaksinya.
-        */
+        return this.transactionRepository
+                .existsById(transaction.getIdempotencyKey())
+                .flatMap(isExist -> {
+                    if(isExist) {
+                        return this.transactionRepository
+                            .findById(transaction.getIdempotencyKey())
+                            .map(trans -> {
+                                trans.setResponse("repeated, " + trans.getResponse());
+                                return trans;
+                            });
+                    }
+                    else {
+                        return this.vendorRepository
+                            .findById(transaction.getVendorId())
+                            .flatMap(vendor -> {
+                                return WebClient.create()
+                                    .get()
+                                    .uri(vendor.getUrl() + "/rooms/id/" + transaction.getRoomId())
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .retrieve()
+                                    .bodyToMono(Room.class)
+                                    .flatMap(room -> {
+                                        if(room.getStatus().equals("available")) {
+                                            transaction.setResponse("success");
+                                            room.setStatus("booked");
+                                            return WebClient.create()
+                                                .put()
+                                                .uri(vendor.getUrl() + "/rooms")
+                                                .body(Mono.just(room), Room.class)
+                                                .retrieve()
+                                                .bodyToMono(Room.class)
+                                                .flatMap(roomBooked -> {
+                                                    return this.transactionRepository
+                                                        .save(transaction);
+                                                });
+                                        }
+                                        else {
+                                            transaction.setResponse("failed");
+                                            return this.transactionRepository
+                                                .save(transaction);
+                                        }
+                                    });
+                            });
+                    }
+                });
     }
 
     @PostMapping("/rooms/unbook")
     public @ResponseBody Mono<Transaction> unbookRoom(@RequestBody Transaction transaction) {
-        /*
-            1. cek transaksi sebelumnya, ada ngga yang idempotencyKey nya sama.
-                a. kalo ada, return transaksi nya langsung.
-                b. kalo ngga ada, lanjut ke langkah 2.
-            2. cek kamarnya booked atau available.
-                a. kalo available, set response jadi "failed"
-                b. kalo booked, langsung book dan set response jadi "success"
-            3. save transaksi nya dan return transaksinya.
-        */
+        return this.transactionRepository
+                .existsById(transaction.getIdempotencyKey())
+                .flatMap(isExist -> {
+                    if(isExist) {
+                        return this.transactionRepository
+                            .findById(transaction.getIdempotencyKey())
+                            .map(trans -> {
+                                trans.setResponse("repeated, " + trans.getResponse());
+                                return trans;
+                            });
+                    }
+                    else {
+                        return this.vendorRepository
+                            .findById(transaction.getVendorId())
+                            .flatMap(vendor -> {
+                                return WebClient.create()
+                                    .get()
+                                    .uri(vendor.getUrl() + "/rooms/id/" + transaction.getRoomId())
+                                    .accept(MediaType.APPLICATION_JSON)
+                                    .retrieve()
+                                    .bodyToMono(Room.class)
+                                    .flatMap(room -> {
+                                        if(room.getStatus().equals("booked")) {
+                                            transaction.setResponse("success");
+                                            room.setStatus("available");
+                                            return WebClient.create()
+                                                .put()
+                                                .uri(vendor.getUrl() + "/rooms")
+                                                .body(Mono.just(room), Room.class)
+                                                .retrieve()
+                                                .bodyToMono(Room.class)
+                                                .flatMap(roomBooked -> {
+                                                    return this.transactionRepository
+                                                        .save(transaction);
+                                                });
+                                        }
+                                        else {
+                                            transaction.setResponse("failed");
+                                            return this.transactionRepository
+                                                .save(transaction);
+                                        }
+                                    });
+                            });
+                    }
+                });
     }
 
 }

@@ -43,18 +43,18 @@ public class BlueDoorServiceController {
     }
 
     @PostMapping("/rooms")
-    public @ResponseBody Mono<Void> insertRoom(@RequestBody Room room) {
-        return this.roomRepository.save(room).then();
+    public @ResponseBody Mono<Room> insertRoom(@RequestBody Room room) {
+        return this.roomRepository.save(room);
     }
 
     @PutMapping("/rooms")
-    public @ResponseBody Mono<Void> updateRoom(@RequestBody Room room) {
-        return this.roomRepository.save(room).then();
+    public @ResponseBody Mono<Room> updateRoom(@RequestBody Room room) {
+        return this.roomRepository.save(room);
     }
 
     @DeleteMapping("/rooms/id/{id}")
     public @ResponseBody Mono<Void> deleteRoom(@PathVariable("id") String id) {
-        return this.roomRepository.deleteById(id).then();
+        return this.roomRepository.deleteById(id);
     }
     
 }
