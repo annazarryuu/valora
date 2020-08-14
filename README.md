@@ -40,8 +40,8 @@ Daftar Endpoint untuk Valora Service
 Method | URI | Deskkripsi | Parameter | Request JSON | Response JSON
 --- | --- | --- | --- | --- | ---
 `GET` | */rooms/list* | Daftar semua kamar (rooms) | None | None |
-`POST` | */rooms/book* [`TODO`] | Melakukan transaksi sewa kamar | None | class `Transaction`  |
-`POST` | */rooms/unbook* [`TODO`] | Melakukan transaksi batalkan sewa kamar | None | class `Transaction` |
+`POST` | */rooms/book* | Melakukan transaksi sewa kamar | None | class `Transaction`  |
+`POST` | */rooms/unbook* | Melakukan transaksi batalkan sewa kamar | None | class `Transaction` |
 
 ## Kelompok : 7
 ### Anggota :
