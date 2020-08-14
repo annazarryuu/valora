@@ -46,7 +46,12 @@ public class ValoraServiceController {
         });
     }
 
-    @PostMapping("/rooms/book")
+    @GetMapping("/rooms/transactions/list")
+    public @ResponseBody Flux<Transaction> findAllTransactions() {
+        return this.transactionRepository.findAll();
+    }
+
+    @PostMapping("/rooms/transactions")
     public @ResponseBody Mono<Transaction> bookRoom(@RequestBody Transaction transaction) {
         return this.transactionRepository
                 .existsById(transaction.getIdempotencyKey())
@@ -70,58 +75,14 @@ public class ValoraServiceController {
                                     .retrieve()
                                     .bodyToMono(Room.class)
                                     .flatMap(room -> {
-                                        if(room.getStatus().equals("available")) {
-                                            transaction.setResponse("success");
-                                            room.setStatus("booked");
-                                            return WebClient.create()
-                                                .put()
-                                                .uri(vendor.getUrl() + "/rooms")
-                                                .body(Mono.just(room), Room.class)
-                                                .retrieve()
-                                                .bodyToMono(Room.class)
-                                                .flatMap(roomBooked -> {
-                                                    return this.transactionRepository
-                                                        .save(transaction);
-                                                });
+                                        String beforeStatus = "available", afterStatus = "booked";
+                                        if(transaction.getType().equals("unbook")) {
+                                            beforeStatus = "booked";
+                                            afterStatus = "available";
                                         }
-                                        else {
-                                            transaction.setResponse("failed");
-                                            return this.transactionRepository
-                                                .save(transaction);
-                                        }
-                                    });
-                            });
-                    }
-                });
-    }
-
-    @PostMapping("/rooms/unbook")
-    public @ResponseBody Mono<Transaction> unbookRoom(@RequestBody Transaction transaction) {
-        return this.transactionRepository
-                .existsById(transaction.getIdempotencyKey())
-                .flatMap(isExist -> {
-                    if(isExist) {
-                        return this.transactionRepository
-                            .findById(transaction.getIdempotencyKey())
-                            .map(trans -> {
-                                trans.setResponse("repeated, " + trans.getResponse());
-                                return trans;
-                            });
-                    }
-                    else {
-                        return this.vendorRepository
-                            .findById(transaction.getVendorId())
-                            .flatMap(vendor -> {
-                                return WebClient.create()
-                                    .get()
-                                    .uri(vendor.getUrl() + "/rooms/id/" + transaction.getRoomId())
-                                    .accept(MediaType.APPLICATION_JSON)
-                                    .retrieve()
-                                    .bodyToMono(Room.class)
-                                    .flatMap(room -> {
-                                        if(room.getStatus().equals("booked")) {
+                                        if(room.getStatus().equals(beforeStatus)) {
                                             transaction.setResponse("success");
-                                            room.setStatus("available");
+                                            room.setStatus(afterStatus);
                                             return WebClient.create()
                                                 .put()
                                                 .uri(vendor.getUrl() + "/rooms")

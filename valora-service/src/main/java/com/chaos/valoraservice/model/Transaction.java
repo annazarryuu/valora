@@ -19,6 +19,7 @@ public class Transaction {
     
     @Id
     private String idempotencyKey;
+    private String type;
     private String roomId;
     private String vendorId;
     private String response;
